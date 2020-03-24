@@ -146,14 +146,17 @@ class cifar10(object):
             
                 if self.distort == True:
                     d = self.random_distort(d) 
-                    
+                
+                if self.image_size != 32:
+                    d = self.resize_image(d, (self.image_size, self.image_size))
+    
                 batch_image.append(d)
                 batch_label.append(self.train_labels[index])
                 self.train_indexs.append(index)
                 data_index.append(index)
                 if len(self.train_indexs) >=  len(self.train_images):
                     self.train_indexs.clear()
-        return np.array(batch_image).transpose(0,3,2,1).reshape(-1,32,32,3), batch_label, data_index
+        return np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
         
     def get_test_batch(self,batch_size=10000):
         batch_image = list()
@@ -165,12 +168,16 @@ class cifar10(object):
             if not index in self.test_indexs:
                 i += 1
                 d = self.test_images[index]
+                
+                if self.image_size != 32:
+                    d = self.resize_image(d, (self.image_size, self.image_size))
+                    
                 batch_image.append(d) 
                 batch_label.append(self.test_labels[index])
                 self.test_indexs.append(index)
                 data_index.append(index)
                 if len(self.test_indexs) >=  len(self.test_images):
                     self.test_indexs.clear()
-        return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,32,32,3), batch_label,data_index    
+        return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label,data_index    
     
     
