@@ -20,9 +20,7 @@ def load(file_name):
         return data  
 
 class cifar10(object): 
-    def __init__(self,size = 32, path='cifar-10-batches-py/', ramdom_wrap=True, random_flip=True, random_distort=True):
-        self.train_indexs = list()
-        self.test_indexs = list()
+    def __init__(self,size = 32, path='cifar-10-batches-py/', ramdom_wrap=True, random_flip=True, random_distort=True):        
         self.data_path = path
         self.train_images, self.train_labels = self._get_train()
         self.test_images, self.test_labels = self._get_test()
@@ -31,8 +29,16 @@ class cifar10(object):
         self.flip = random_flip
         self.distort = random_distort
         self.label_dic = {0:'aircraft', 1:'car',2:'bird',3:'cat',4:'deer',5:'dog',6:'frog',7:'horse',8:'ship',9:'truck'}
+        self._get_shuffle_index()
 
+    def _get_shuffle_index(self):
+        self.train_index = 0        
+        self.test_index = 0        
+        self.train_list_index = list(range(len(self.train_labels)))
+        random.shuffle(self.train_list_index)
+        #print(self.train_list_index)        
         
+
     def _get_train(self):
         train_labels = []        
         data1 = load(self.data_path+'data_batch_1')
@@ -128,56 +134,49 @@ class cifar10(object):
         return image.astype('uint8')
     
     def get_train_batch(self,batch_size=128):
-        batch_image = list()
-        batch_label = list()
-        data_index = list()
+        batch_image = []
+        batch_label = []
+        data_index = []
         i = 0
-        while i < batch_size:
-            index = random.randint(0, len(self.train_labels)-1)
-            if not index in self.train_indexs:
-                i += 1
-                d = self.train_images[index]
-                
-                if self.wrap == True:
-                    d = self.ramdom_wrap(d)
- 
-                if self.flip == True:
-                    d = self.random_flip(d) 
-            
-                if self.distort == True:
-                    d = self.random_distort(d) 
-                
-                if self.image_size != 32:
-                    d = self.resize_image(d, (self.image_size, self.image_size))
-    
-                batch_image.append(d)
-                batch_label.append(self.train_labels[index])
-                self.train_indexs.append(index)
-                data_index.append(index)
-                if len(self.train_indexs) >=  len(self.train_images):
-                    self.train_indexs.clear()
+        for i in range(batch_size):
+            d = self.train_images[self.train_list_index[self.train_index]]
+
+            if self.wrap == True:
+                d = self.ramdom_wrap(d)
+
+            if self.flip == True:
+                d = self.random_flip(d) 
+
+            if self.distort == True:
+                d = self.random_distort(d) 
+
+            if self.image_size != 32:
+                d = self.resize_image(d, (self.image_size, self.image_size))
+
+            batch_image.append(d)
+            batch_label.append(self.train_labels[self.train_list_index[self.train_index]])
+            data_index.append(self.train_list_index[self.train_index])
+            self.train_index += 1
+            if self.train_index >=  len(self.train_images):
+                self._get_shuffle_index()
+                self.train_index = 0
         return np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
         
     def get_test_batch(self,batch_size=10000):
-        batch_image = list()
-        batch_label = list()
-        data_index = list()
+        batch_image = []
+        batch_label = []
+        data_index = []
         i = 0
-        while i < batch_size:
-            index = random.randint(0, len(self.test_labels)-1)
-            if not index in self.test_indexs:
-                i += 1
-                d = self.test_images[index]
-                
-                if self.image_size != 32:
-                    d = self.resize_image(d, (self.image_size, self.image_size))
-                    
-                batch_image.append(d) 
-                batch_label.append(self.test_labels[index])
-                self.test_indexs.append(index)
-                data_index.append(index)
-                if len(self.test_indexs) >=  len(self.test_images):
-                    self.test_indexs.clear()
-        return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label,data_index    
+        for i in range(batch_size):                
+            d = self.test_images[self.test_index]
+            if self.image_size != 32:
+                d = self.resize_image(d, (self.image_size, self.image_size))                    
+            batch_image.append(d) 
+            batch_label.append(self.test_labels[self.test_index])            
+            data_index.append(self.test_index)
+            self.test_index += 1
+            if self.test_index >=  len(self.test_images):
+                self.test_index = 0
+        return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
     
     
