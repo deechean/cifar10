@@ -20,7 +20,7 @@ def load(file_name):
         return data  
 
 class cifar10(object): 
-    def __init__(self,size = 32, path='cifar-10-batches-py/', ramdom_wrap=True, random_flip=True, random_distort=True):        
+    def __init__(self, size = 32, path='cifar-10-batches-py/', ramdom_wrap=True, random_flip=True, random_distort=True):        
         self.data_path = path
         self.train_images, self.train_labels = self._get_train()
         self.test_images, self.test_labels = self._get_test()
@@ -160,7 +160,7 @@ class cifar10(object):
             if self.train_index >=  len(self.train_images):
                 self._get_shuffle_index()
                 self.train_index = 0
-        return np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
+        return np.array(batch_image).transpose(0,2,3,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
         
     def get_test_batch(self,batch_size=10000):
         batch_image = []
@@ -177,6 +177,6 @@ class cifar10(object):
             self.test_index += 1
             if self.test_index >=  len(self.test_images):
                 self.test_index = 0
-        return  np.array(batch_image).transpose(0,3,2,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
+        return  np.array(batch_image).transpose(0,2,3,1).reshape(-1,self.image_size,self.image_size,3), batch_label, data_index
     
     
