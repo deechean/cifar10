@@ -29,6 +29,7 @@ class cifar10(object):
         self.flip = random_flip
         self.distort = random_distort
         self.label_dic = {0:'aircraft', 1:'car',2:'bird',3:'cat',4:'deer',5:'dog',6:'frog',7:'horse',8:'ship',9:'truck'}
+        self.label_dic_reverse = {'aircraft':0, 'car':1,'bird':2,'cat':3,'deer':4,'dog':5,'frog':6,'horse':7,'ship':8,'truck':9}
         self._get_shuffle_index()
 
     def _get_shuffle_index(self):
